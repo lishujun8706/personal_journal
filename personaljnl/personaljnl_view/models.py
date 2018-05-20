@@ -4,7 +4,7 @@ import datetime
 # Create your models here.
 class UserInfo(models.Model):
     user_name = models.CharField(null=False,default='Eva_Wall_E',max_length=20,db_index=True)
-    user_password = models.CharField(null=False,max_length=16)
+    user_password = models.CharField(null=False,max_length=32)
     user_portrait = models.CharField(null=False,default='',max_length=36)
     user_stylesign = models.TextField(null=False,default='')
     user_birthday = models.DateField(null=False,default=datetime.date.today())
