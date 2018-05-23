@@ -7,8 +7,24 @@ from .models import UserInfo
 from django.template import RequestContext
 from django.conf import settings
 
-sys.path.append("..//")
+# sys.path.append("..//")
 from tools import get_md5
+
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.backends import ModelBackend
+from django.db.models import Q
+from models import UserInfo
+
+# 让用户可以用邮箱登录
+# setting 里要有对应的配置
+class CustomBackend(ModelBackend):
+    def authenticate(self, username=None, password=None, **kwargs):
+        try:
+            user = UserInfo.objects.get(Q(username = username) | Q(email=username))
+            if user.check_password(password):
+                return user
+        except Exception as e:
+            return None
 
 def login(request):
     return render(request,"user/login.html",)

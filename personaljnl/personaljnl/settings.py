@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'personaljnl_view.UserInfo'
+AUTHENTICATION_BACKENDS = ('personaljnl_view.views.CustomBackend',)
 
 # Application definition
 
@@ -37,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'personaljnl_view',
 )
 
 MIDDLEWARE_CLASSES = (
