@@ -14,6 +14,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
 from models import UserInfo
+from .self_forms import registform
 
 # 让用户可以用邮箱登录
 # setting 里要有对应的配置
