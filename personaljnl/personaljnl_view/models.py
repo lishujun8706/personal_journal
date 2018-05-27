@@ -19,13 +19,13 @@ class UserInfo(AbstractUser):
         return self.user_name
 
 class RelationFriend(models.Model):
-    user_id = models.ForeignKey(UserInfo)
-    friend_id = models.ForeignKey(UserInfo)
+    user_id = models.ForeignKey(UserInfo,related_name="userinfo2userid")
+    friend_id = models.ForeignKey(UserInfo,related_name="userinfo2friend")
     class Meta:
         unique_together = ('user_id', 'friend_id')
 
 class JournalContent(models.Model):
-    user_id = models.ForeignKey(UserInfo)
+    user_id = models.ForeignKey(UserInfo,related_name="userinfo2journal")
     journal_content = models.TextField(null=False,default='')
     journal_share = models.BooleanField(null=False,default=False)
     future_plan = models.BooleanField(null=False,default=False)
