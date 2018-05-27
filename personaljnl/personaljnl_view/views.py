@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import os,sys
 
 from django.shortcuts import render
@@ -27,7 +28,8 @@ class CustomBackend(ModelBackend):
             return None
 
 def login(request):
-    return render(request,"user/login.html",)
+    print("dddddd")
+    return render(request,"personalview/index.html",)
 
 def loginVerify(request):
     if request.method == "POST":
