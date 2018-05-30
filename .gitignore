@@ -1,2 +1,7 @@
+personaljnl/personaljnl/*.pyc
+personaljnl/personaljnl_view/migrations/*
 *.pyc
+personaljnl/db.sqlite3
+
 node_modules
+ .idea/
