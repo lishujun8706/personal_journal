@@ -12,13 +12,25 @@ from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserInfoSerializer
 
+from rest_framework import authentication
+from rest_framework import exceptions
+
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication,get_authorization_header
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view,authentication_classes,permission_classes
+
 # sys.path.append("..//")
 from tools import get_md5
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
+from django.contrib.auth import get_user_model
 from .self_forms import registform
+
+import json
 
 # 让用户可以用邮箱登录
 # setting 里要有对应的配置
@@ -31,22 +43,56 @@ class CustomBackend(ModelBackend):
         except Exception as e:
             return None
 
-def login(request):
+
+class ExampleView(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        content = {
+            'user': unicode(request.user),  # `django.contrib.auth.User` instance.
+            'auth': unicode(request.auth),  # None
+        }
+        return Response(content)
+
+@api_view(['GET'])
+@authentication_classes((SessionAuthentication,BasicAuthentication))
+@permission_classes((IsAuthenticated))
+def example_view(request,format=None):
+    print("RRRRRRRRRRR")
+    content={
+        'user':unicode(request.user),
+        'auth':unicode(request.auth),
+    }
+    print("=======>")
+    print content
+    return HttpResponse(json.dumps(content))
+
+def login_view(request):
     print("dddddd")
     return render(request,"personalview/index.html",)
 
+@csrf_exempt
 def loginVerify(request):
     if request.method == "POST":
         username = request.POST.get("username",None)
         password = request.POST.get('password',None)
-        secretkey = settings.SECRET_KEY
-        user = UserInfo.objects.filter(user_name=username)
-        if not user:
-            #Todo register
-            return render(request,'user/register.html',)
+        print("WWWWWWWWWWWW")
+        print username,password
+        user = authenticate(username=username,password=password)
+        if user is not None:
+            print"HHHHHHHHH"
+            if user.is_active:
+                login(request, user)
+                return HttpResponse(json.dumps({'username**':user.username,'userpassowrd':user.password,}))
+            else:
+                return HttpResponse(json.dumps({'mesg':'username password error'}))
         else:
-            if password and user.password == get_md5(password + secretkey):
-                return render(request,'index.html',)
+            user,_ = UserInfo.objects.get_or_create(username=username, password=password,\
+                                                  user_gender=1,user_phone='18914955682')
+            login(request, user)
+            print user
+            return HttpResponse(json.dumps({'mesg': 'new add user'}))
         
 @csrf_exempt
 def userinfo_list(request):
