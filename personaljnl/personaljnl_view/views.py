@@ -88,7 +88,7 @@ def loginVerify(request):
             else:
                 return HttpResponse(json.dumps({'mesg':'username password error'}))
         else:
-            user,_ = UserInfo.objects.get_or_create(username=username, password=password,\
+            user,_ = UserInfo.objects.create(username=username, password=password,\
                                                   user_gender=1,user_phone='18914955682')
             login(request, user)
             print user
