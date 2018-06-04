@@ -31,6 +31,7 @@ from django.contrib.auth import get_user_model
 from .self_forms import registform
 
 import json
+import datetime
 
 # 让用户可以用邮箱登录
 # setting 里要有对应的配置
@@ -57,7 +58,7 @@ class ExampleView(APIView):
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication,BasicAuthentication))
-@permission_classes((IsAuthenticated))
+@permission_classes((IsAuthenticated,))
 def example_view(request,format=None):
     print("RRRRRRRRRRR")
     content={
@@ -88,8 +89,9 @@ def loginVerify(request):
             else:
                 return HttpResponse(json.dumps({'mesg':'username password error'}))
         else:
-            user,_ = UserInfo.objects.create(username=username, password=password,\
-                                                  user_gender=1,user_phone='18914955682')
+            print "PPPPPPPPPPPPPPPPPPP"
+            user = UserInfo.objects.create_user(username=username, password=password,\
+                                                  user_gender=1,user_phone='18914955682',user_birthday=datetime.date.today())
             login(request, user)
             print user
             return HttpResponse(json.dumps({'mesg': 'new add user'}))

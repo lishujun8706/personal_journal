@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'personaljnl_view.UserInfo'
-AUTHENTICATION_BACKENDS = ('personaljnl_view.views.CustomBackend',)
+# AUTHENTICATION_BACKENDS = ('personaljnl_view.views.CustomBackend',)
 
 # Application definition
 
