@@ -71,7 +71,7 @@ def example_view(request,format=None):
 
 def login_view(request):
     print("dddddd")
-    return render(request,"personalview/index.html",)
+    return render(request,"personalview/submit.html",)
 
 @csrf_exempt
 def loginVerify(request):
@@ -94,7 +94,8 @@ def loginVerify(request):
                                                   user_gender=1,user_phone='18914955682',user_birthday=datetime.date.today())
             login(request, user)
             print user
-            return HttpResponse(json.dumps({'mesg': 'new add user'}))
+            return render(request,'personalview/reverse.html')
+            # return HttpResponse(json.dumps({'mesg': 'new add user'}))
         
 @csrf_exempt
 def userinfo_list(request):
