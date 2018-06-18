@@ -10,7 +10,7 @@ from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
-from .models import UserInfoSerializer
+from .models import UserInfoSerializer,UserInfoSerializerVerify
 
 from rest_framework import authentication
 from rest_framework import exceptions
@@ -26,7 +26,7 @@ from tools import get_md5
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
-from django.db.models import Q
+from django.db.models import Q,Count
 from django.contrib.auth import get_user_model
 from .self_forms import registform
 
@@ -106,6 +106,23 @@ def userinfo_list(request):
     elif request.method == 'POST':
         data = JSONParser().parse(request)
         serializer = UserInfoSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+@csrf_exempt
+@authentication_classes((SessionAuthentication,BasicAuthentication))
+@permission_classes((IsAuthenticated,))
+def userinfo_verify(request):
+    if request.method == 'GET':
+        user = UserInfo.objects.values('username','password').annotate(ttCount=Count('*'))
+        #user = UserInfo.objects.all()
+        serializer = UserInfoSerializerVerify(user,many=True)
+        return JsonResponse(serializer.data,safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = UserInfoSerializerVerify(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)

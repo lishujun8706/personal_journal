@@ -26,6 +26,11 @@ class UserInfoSerializer(serializers.ModelSerializer):
         model = UserInfo
         fields = ('username','password','user_phone','user_addr','user_birthday')
 
+class UserInfoSerializerVerify(serializers.ModelSerializer):
+    class Meta:
+        model = UserInfo
+        fields = ('username','password')
+
 class RelationFriend(models.Model):
     user_id = models.ForeignKey(UserInfo,related_name="userinfo2userid")
     friend_id = models.ForeignKey(UserInfo,related_name="userinfo2friend")
