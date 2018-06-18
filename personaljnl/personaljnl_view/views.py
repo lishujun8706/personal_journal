@@ -112,6 +112,7 @@ def userinfo_list(request):
         return JsonResponse(serializer.errors, status=400)
 
 @csrf_exempt
+@api_view(['GET','POST'])
 @authentication_classes((SessionAuthentication,BasicAuthentication))
 @permission_classes((IsAuthenticated,))
 def userinfo_verify(request):

@@ -12,6 +12,3 @@ class SelfDefine(object):
     def process_exception(self,request,exception):
         #Todo
         print("this is process_exception")
-    def process_template_response(self):
-        print("this is process_template_response")
-        pass
