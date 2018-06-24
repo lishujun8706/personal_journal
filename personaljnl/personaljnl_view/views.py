@@ -85,18 +85,32 @@ def loginVerify(request):
             print"HHHHHHHHH"
             if user.is_active:
                 login(request, user)
-                return HttpResponse(json.dumps({'username**':user.username,'userpassowrd':user.password,}))
+                return HttpResponse(json.dumps({'username**':user.username,'userpassowrd':user.password,
+                                                'mesg':'success',
+                                                'code':0}))
             else:
-                return HttpResponse(json.dumps({'mesg':'username password error'}))
+                return HttpResponse(json.dumps({'mesg':'username password error','code':1}))
         else:
-            print "PPPPPPPPPPPPPPPPPPP"
+            print u"用户不存在，请先注册"
+            return HttpResponse(json.dumps({'mesg': 'username not exist, please first register','code':1}))
             user = UserInfo.objects.create_user(username=username, password=password,\
-                                                  user_gender=1,user_phone='18914955682',user_birthday=datetime.date.today())
+                                                  user_gender=1,user_phone=11111111111,user_birthday=datetime.date.today())
             login(request, user)
             print user
             return render(request,'personalview/reverse.html')
-            # return HttpResponse(json.dumps({'mesg': 'new add user'}))
-        
+
+@csrf_exempt
+def registerUser(request):
+    if request.method == "POST":
+        username = request.POST.get("username",None)
+        password = request.POST.get('password',None)
+
+        user = UserInfo.objects.create_user(username=username, password=password,\
+                                              user_gender=1,user_phone='18914955682',user_birthday=datetime.date.today())
+        login(request, user)
+        print user
+        return render(request,'personalview/reverse.html')
+
 @csrf_exempt
 def userinfo_list(request):
     if request.method == 'GET':
