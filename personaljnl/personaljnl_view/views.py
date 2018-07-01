@@ -4,13 +4,13 @@ import os,sys
 from django.shortcuts import render
 from django.http import HttpResponseRedirect,HttpResponse,JsonResponse
 from django.core.urlresolvers import reverse
-from .models import UserInfo
+from .models import UserInfo,JournalContent
 from django.template import RequestContext
 from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
-from .models import UserInfoSerializer,UserInfoSerializerVerify
+from .db_serializer import UserInfoSerializer,UserInfoSerializerVerify,JournalContentSerializer
 
 from rest_framework import authentication
 from rest_framework import exceptions
@@ -33,28 +33,41 @@ from .self_forms import registform
 import json
 import datetime
 
-# 让用户可以用邮箱登录
-# setting 里要有对应的配置
-class CustomBackend(ModelBackend):
-    def authenticate(self, username=None, password=None, **kwargs):
-        try:
-            user = UserInfo.objects.get(Q(username = username) | Q(email=username))
-            if user.check_password(password):
-                return user
-        except Exception as e:
-            return None
+def index(request):
+    return HttpResponseRedirect(reverse('login'))
 
+def login_view(request,*args,**kwargs):
+    print("dddddd")
+    return render(request,"personalview/index.html",)
 
-class ExampleView(APIView):
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
-    permission_classes = (IsAuthenticated,)
+@api_view(['GET','POST'])
+@authentication_classes((SessionAuthentication,BasicAuthentication))
+@permission_classes((IsAuthenticated,))
+def home(request):
+    user = request.user
+    print user
+    print "***********************************"
+    user_jurl = JournalContent.objects.filter(user_id=user)
+    joural_data = JournalContentSerializer(data=user_jurl)
+    return render(request, "personalview/home.html", )
+    # if joural_data.is_valid():
+    #     return JsonResponse(joural_data.data,status=200)
+    # else:
+    #     return JsonResponse(joural_data.errors,status=400)
 
-    def get(self, request, format=None):
-        content = {
-            'user': unicode(request.user),  # `django.contrib.auth.User` instance.
-            'auth': unicode(request.auth),  # None
-        }
-        return Response(content)
+def registerUser(request):
+    print request.method
+    if request.method == "POST":
+        email = request.POST.get("email", None)
+        username = request.POST.get("username",None)
+        password = request.POST.get('password',None)
+        phonenumber = request.POST.get('phonenumber', None)
+
+        user = UserInfo.objects.create_user(email=email,username=username, password=password,\
+                                              user_gender=1,user_phone=int(phonenumber),user_birthday=datetime.date.today())
+        login(request, user)
+        print user
+        return render(request,'personalview/reverse.html')
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication,BasicAuthentication))
@@ -69,13 +82,10 @@ def example_view(request,format=None):
     print content
     return HttpResponse(json.dumps(content))
 
-def login_view(request):
-    print("dddddd")
-    return render(request,"personalview/submit.html",)
-
-@csrf_exempt
+#@csrf_exempt
 def loginVerify(request):
     if request.method == "POST":
+        email = request.POST.get("email", None)
         username = request.POST.get("username",None)
         password = request.POST.get('password',None)
         print("WWWWWWWWWWWW")
@@ -85,31 +95,15 @@ def loginVerify(request):
             print"HHHHHHHHH"
             if user.is_active:
                 login(request, user)
-                return HttpResponse(json.dumps({'username**':user.username,'userpassowrd':user.password,
-                                                'mesg':'success',
-                                                'code':0}))
+                return HttpResponseRedirect(reverse('home'))
             else:
-                return HttpResponse(json.dumps({'mesg':'username password error','code':1}))
+                return HttpResponseRedirect(reverse('login'))
+                #,content=json.dumps({'mesg':'username password error','code':1})
         else:
             print u"用户不存在，请先注册"
-            return HttpResponse(json.dumps({'mesg': 'username not exist, please first register','code':1}))
-            user = UserInfo.objects.create_user(username=username, password=password,\
-                                                  user_gender=1,user_phone=11111111111,user_birthday=datetime.date.today())
-            login(request, user)
-            print user
-            return render(request,'personalview/reverse.html')
+            return HttpResponseRedirect(reverse('login'))
+            #,content=json.dumps({'mesg':'username password error','code':1})
 
-@csrf_exempt
-def registerUser(request):
-    if request.method == "POST":
-        username = request.POST.get("username",None)
-        password = request.POST.get('password',None)
-
-        user = UserInfo.objects.create_user(username=username, password=password,\
-                                              user_gender=1,user_phone='18914955682',user_birthday=datetime.date.today())
-        login(request, user)
-        print user
-        return render(request,'personalview/reverse.html')
 
 @csrf_exempt
 def userinfo_list(request):

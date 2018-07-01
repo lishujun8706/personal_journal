@@ -14,7 +14,7 @@ class UserInfo(AbstractUser):
     user_birthday = models.DateField(null=False)#,default=datetime.date.today())
     user_gender = models.SmallIntegerField(choices=((1,"female"),(2,"male")))
     user_addr = models.CharField(max_length=100, default='', verbose_name='address')
-    user_phone = models.IntegerField(null=False, verbose_name='mobile_number')
+    user_phone = models.IntegerField(null=True, unique=True,verbose_name='mobile_number')
 
     class Meta:
         verbose_name = 'user_infor_table'
@@ -22,15 +22,6 @@ class UserInfo(AbstractUser):
     def __str__(self):
         return self.username
 
-class UserInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserInfo
-        fields = ('username','password','user_phone','user_addr','user_birthday')
-
-class UserInfoSerializerVerify(serializers.ModelSerializer):
-    class Meta:
-        model = UserInfo
-        fields = ('username','password')
 
 class RelationFriend(models.Model):
     user_id = models.ForeignKey(UserInfo,related_name="userinfo2userid")
