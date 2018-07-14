@@ -72,6 +72,7 @@
     <script src="../../static/bootstrap/js/ie10-viewport-bug-workaround.js"></script>
   </body>
   <script type="text/javascript">
+    Vue.http.options.emulateJSON = true;
     new Vue({
       el:"#vue_app",
       data:{
@@ -98,12 +99,42 @@
           }
         },
         submitButton:function(e){
-          //e.preventDefault();
+          e.preventDefault();
           var csrf_token=document.getElementsByName("csrfmiddlewaretoken")[0].getAttribute('value');
+          var post_data={email:this.email,username:this.username,password:this.password,phonenumber:this.phonenumber}
           if( this.message == "登陆" ){
             this.$http.post('/login_verify/',{"email":this.email,'username':this.username,'password':this.password},{headers:{'X-CSRFToken':csrf_token}});
           }else{
-            this.$http.post('/register/',{"email":this.email,'username':this.username,'password':this.password,'phonenumber':this.phonenumber},{headers:{'X-CSRFToken':csrf_token}});
+            $.ajaxSetup({
+              data:{csrfmiddlewaretoken:csrf_token},
+            });
+            $.ajax({
+              url:'/register/',
+              type:'POST',
+              data:post_data,
+              dataType:'json',
+              success:function(data){
+                console.log('This is success');
+                console.log(data.mesg);
+                console.log(window.location.pathname);
+                console.log(window.location.hostname + data.reverse_path);
+                top.location.href=window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + data.reverse_path;
+                //window.event.returnValue=false;
+              },
+              error:function(data){
+                console.log('This is error');
+                alert(data);
+              },
+              complete:function(data){
+                console.log('This is complete');
+              }
+            });
+            //this.$http.post(
+            //  '/register/',
+            //  post_data,
+            //  //{email:this.email,username:this.username,password:this.password,phonenumber:this.phonenumber},
+            //  {headers:{'X-CSRFToken':csrf_token,'Content-Length': post_data.length },emulateJSON:true}
+            //  ).then(function(data){alert(data)},function(data){console.log(data.data)});
           }
         }
       }

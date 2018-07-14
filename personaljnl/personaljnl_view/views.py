@@ -57,17 +57,19 @@ def home(request):
 
 def registerUser(request):
     print request.method
+    print request.POST
+    print request
     if request.method == "POST":
         email = request.POST.get("email", None)
         username = request.POST.get("username",None)
         password = request.POST.get('password',None)
         phonenumber = request.POST.get('phonenumber', None)
-
         user = UserInfo.objects.create_user(email=email,username=username, password=password,\
                                               user_gender=1,user_phone=int(phonenumber),user_birthday=datetime.date.today())
         login(request, user)
-        print user
-        return render(request,'personalview/reverse.html')
+        print '////////////////////////'
+        return JsonResponse({'mesg':'ok','reverse_path':'/view/home/'},status=200)
+        # return render(request,'personalview/reverse.html')
 
 @api_view(['GET'])
 @authentication_classes((SessionAuthentication,BasicAuthentication))
